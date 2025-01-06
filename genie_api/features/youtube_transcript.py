@@ -1,5 +1,5 @@
 from helpers.transcript import extract_youtube_id, _validate_youtube_link, _join_chunks
-from typing import Union, List, Dict
+from typing import List, Dict
 
 from youtube_transcript_api import YouTubeTranscriptApi
 
