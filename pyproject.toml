@@ -15,6 +15,7 @@ langgraph = "^0.2.60"
 langsmith = "^0.2.10"
 langserve = "^0.3.1"
 youtube-transcript-api = "^0.6.3"
+python-dotenv = "^1.0.1"
 
 
 [build-system]
