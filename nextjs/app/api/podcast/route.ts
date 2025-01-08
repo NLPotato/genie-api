@@ -9,11 +9,13 @@ interface RSSItem {
   guid: string;
   creator: string;
   pubDate: string;
-  enclosure: Array<{
-    url: string;
-    length: string;
-    type: string;
-  }>; 
+  enclosure: {
+    $: { 
+      url: string; 
+      length: string; 
+      type: string; 
+    };
+  }[]; 
   itunes: {
     summary: string;
     explicit: string;
@@ -49,7 +51,7 @@ async function parsePodcastData(xmlData: string){
       title: item.title[0],
       link: item.link[0],
       pubDate: item.pubDate[0],
-      audioUrl: item.enclosure[0].url,
+      audioUrl: item.enclosure[0].$.url, 
     }));
     return episodes;
   } catch (error) {
