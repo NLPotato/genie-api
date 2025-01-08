@@ -38,7 +38,7 @@ interface Episode {
   };
 }
 
-function extractRssFeedUrl(input: string): string | null {
+function extractRSSFeedUrl(input: string): string | null {
   const regex = /"feedUrl":"(https?:\/\/[^"]+\/rss)"/;
   const match = input.match(regex);
   return match ? match[1] : null;
@@ -69,16 +69,17 @@ async function parsePodcastData(xmlData: string){
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { url } = req.query;
+  const urlDecoded = decodeURIComponent(url as string);
 
-  if (!url) {
+  if (!urlDecoded) {
     res.status(400).json({ error: "URL parameter is required" });
     return;
   }
-
+  console.log(urlDecoded);
   try {
-    const response = await fetch(url as string);
+    const response = await fetch(urlDecoded);
     const data = await response.text(); // Use `.text()` for XML or raw text
-    const rss_url = extractRssFeedUrl(data);
+    const rss_url = extractRSSFeedUrl(data);
     if (!rss_url) {
       res.status(400).json({ error: "RSS feed URL not found" });
       return;
