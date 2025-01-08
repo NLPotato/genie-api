@@ -27,7 +27,16 @@ interface RSSItem {
   "itunes:season"?: number;
   "itunes:episode"?: number;
 }
-  
+
+interface ChannelInfo {
+  title: string;
+  description: string;
+  link: string;
+  image: string;
+  language: string;
+  category: string;
+}
+
 interface Episode {
   title: string;
   description: string;
@@ -48,6 +57,15 @@ async function parsePodcastData(xmlData: string){
     const parser = new xml2js.Parser();
     const result = await parser.parseStringPromise(xmlData);
 
+    const channelInfo: ChannelInfo = {
+      title: result.rss.channel[0].title[0],
+      description: result.rss.channel[0].description[0],
+      link: result.rss.channel[0].link[0],
+      image: result.rss.channel[0].image[0].url[0],
+      language: result.rss.channel[0].language[0],
+      category: result.rss.channel[0].category[0],
+    };
+
     const episodes: Episode[] = result.rss.channel[0].item.map((item: RSSItem) => ({
       title: item.title[0],
       link: item.link[0],
@@ -55,7 +73,7 @@ async function parsePodcastData(xmlData: string){
       audioUrl: item.enclosure[0].$.url, 
       playTime: item["itunes:duration"] ? item["itunes:duration"]: "",
     }));
-    return episodes;
+    return {"channelInfo": channelInfo, "episodes": episodes};
   } catch (error) {
     console.error('Error parsing XML:', error);
     return [];
