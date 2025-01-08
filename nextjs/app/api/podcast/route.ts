@@ -9,11 +9,11 @@ interface RSSItem {
   guid: string;
   creator: string;
   pubDate: string;
-  enclosure: {
+  enclosure: Array<{
     url: string;
     length: string;
     type: string;
-  };
+  }>; 
   itunes: {
     summary: string;
     explicit: string;
@@ -31,7 +31,7 @@ interface Episode {
   title: string;
   link: string;
   pubDate: string;
-  url: string;
+  audioUrl: string;
 }
 
 function extractRSSFeedUrl(input: string): string | null {
@@ -49,9 +49,8 @@ async function parsePodcastData(xmlData: string){
       title: item.title[0],
       link: item.link[0],
       pubDate: item.pubDate[0],
-      url: item.enclosure.url,
+      audioUrl: item.enclosure[0].url,
     }));
-
     return episodes;
   } catch (error) {
     console.error('Error parsing XML:', error);
