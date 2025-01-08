@@ -53,9 +53,9 @@ async function parsePodcastData(xmlData: Promise<string>){
       link: item.link[0],
       pubDate: item.pubDate[0],
       enclosure: {
-        url: item.enclosure[0].url,
-        length: item.enclosure[0].length,
-        type: item.enclosure[0].type,
+        url: item.enclosure.url,
+        length: item.enclosure.length,
+        type: item.enclosure.type,
       },
     }));
 
