@@ -31,11 +31,7 @@ interface Episode {
   title: string;
   link: string;
   pubDate: string;
-  enclosure: {
-    url: string;
-    length: string;
-    type: string;
-  };
+  url: string;
 }
 
 function extractRSSFeedUrl(input: string): string | null {
@@ -53,11 +49,7 @@ async function parsePodcastData(xmlData: string){
       title: item.title[0],
       link: item.link[0],
       pubDate: item.pubDate[0],
-      enclosure: {
-        url: item.enclosure.url,
-        length: item.enclosure.length,
-        type: item.enclosure.type,
-      },
+      url: item.enclosure.url,
     }));
 
     return episodes;
