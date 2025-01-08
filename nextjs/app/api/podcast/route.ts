@@ -1,5 +1,5 @@
 import * as xml2js from 'xml2js';
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextResponse } from 'next/server';
 
  // Start of Selection
 interface RSSItem {
@@ -67,28 +67,27 @@ async function parsePodcastData(xmlData: string){
   }
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { url } = req.query;
+export default async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const url = searchParams.get('url');
   const urlDecoded = decodeURIComponent(url as string);
 
   if (!urlDecoded) {
-    res.status(400).json({ error: "URL parameter is required" });
-    return;
+    return NextResponse.json({ error: "URL parameter is required" }, { status: 400 });
   }
-  console.log(urlDecoded);
+  console.log(`fetching: ${urlDecoded}`);
   try {
     const response = await fetch(urlDecoded);
     const data = await response.text(); // Use `.text()` for XML or raw text
     const rss_url = extractRSSFeedUrl(data);
     if (!rss_url) {
-      res.status(400).json({ error: "RSS feed URL not found" });
-      return;
+      return NextResponse.json({ error: "RSS feed URL not found" }, { status: 400 });
     }
     const rss_data_text = await (await fetch(rss_url)).text();
     const episodes = await parsePodcastData(rss_data_text);
-    res.status(200).json(episodes); // Send raw response back to the client
+    return NextResponse.json(episodes); // Send raw response back to the client
   } catch (error) {
     console.error("Error fetching podcast feed:", error);
-    res.status(500).json({ error: "Failed to fetch the podcast feed." });
+    return NextResponse.json({ error: "Failed to fetch the podcast feed." }, { status: 500 });
   }
 }
