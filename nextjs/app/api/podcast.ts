@@ -4,10 +4,10 @@ interface Episode {
   title: string;
   description: string;
   link: string;
-  pubDate: Date;
+  pubDate: string;
   enclosure: {
     url: string;
-    length: number;
+    length: string;
     type: string;
   };
 }
@@ -43,10 +43,10 @@ async function parsePodcastData(xmlData: Promise<string>){
       title: item.title[0],
       description: item.description[0],
       link: item.link[0],
-      pubDate: new Date(item.pubDate[0]),
+      pubDate: item.pubDate[0],
       enclosure: {
         url: item.enclosure[0].$.url,
-        length: parseInt(item.enclosure[0].$.length),
+        length: item.enclosure[0].$.length,
         type: item.enclosure[0].$.type,
       },
     }));
