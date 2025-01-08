@@ -67,7 +67,7 @@ async function parsePodcastData(xmlData: string){
   }
 }
 
-export default async function GET(req: Request) {
+export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const url = searchParams.get('url');
   const urlDecoded = decodeURIComponent(url as string);
