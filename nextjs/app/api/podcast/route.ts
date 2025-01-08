@@ -71,12 +71,13 @@ async function parsePodcastData(xmlData: string): Promise<{ channelInfo: Channel
       link: item.link[0],
       pubDate: item.pubDate[0],
       audioUrl: item.enclosure[0].$.url, 
+      description: item.description[0],
       playTime: item["itunes:duration"] ? item["itunes:duration"]: "",
     }));
-    return { channelInfo, episodes };
+    return { "channelInfo": channelInfo, "episodes": episodes };
   } catch (error) {
     console.error('Error parsing XML:', error);
-    return { channelInfo: {} as ChannelInfo, episodes: [] };
+    return { "channelInfo": {} as ChannelInfo, "episodes": [] };
   }
 }
 
@@ -98,6 +99,8 @@ export async function GET(req: Request) {
     }
     const rss_data_text = await (await fetch(rss_url)).text();
     const { channelInfo, episodes } = await parsePodcastData(rss_data_text);
+    console.log(channelInfo);
+    console.log(episodes);
     return NextResponse.json({ channelInfo, episodes }); // Send raw response back to the client
   } catch (error) {
     console.error("Error fetching podcast feed:", error);
