@@ -1,8 +1,33 @@
 import * as xml2js from 'xml2js';
 
-interface Episode {
+ // Start of Selection
+interface RSSItem {
   title: string;
   description: string;
+  link: string;
+  guid: string;
+  creator: string;
+  pubDate: string;
+  enclosure: {
+    url: string;
+    length: string;
+    type: string;
+  };
+  itunes: {
+    summary: string;
+    explicit: string;
+    duration: string;
+    image: {
+      href: string;
+    };
+    season: number;
+    episode: number;
+    episodeType: string;
+  };
+}
+  
+interface Episode {
+  title: string;
   link: string;
   pubDate: string;
   enclosure: {
@@ -18,36 +43,19 @@ function extractRssFeedUrl(input: string): string | null {
   return match ? match[1] : null;
 }
 
-// function parsePodcastData(data: string): Episode[] {
-//   const episodes: Episode[] = [];
-//   const regex = /"streamUrl":\"(.*?\.m4a)\",\"releaseDate\":\"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)\",\"title\":\"(.*?)\"/g;
-
-//   // Loop through all matches using the global flag 'g' in the regex
-//   let match;
-//   while ((match = regex.exec(data)) !== null) {
-//     const [, streamUrl, releaseDate, title] = match; // Destructuring assignment to extract captured groups
-//     episodes.push({ title, releaseDate, streamUrl });
-//   }
-
-//   return episodes;
-// }
-
-
-
 async function parsePodcastData(xmlData: Promise<string>){
   try {
     const parser = new xml2js.Parser();
     const result = await parser.parseStringPromise(xmlData);
 
-    const episodes: Episode[] = result.rss.channel[0].item.map((item: any) => ({
+    const episodes: Episode[] = result.rss.channel[0].item.map((item: RSSItem) => ({
       title: item.title[0],
-      description: item.description[0],
       link: item.link[0],
       pubDate: item.pubDate[0],
       enclosure: {
-        url: item.enclosure.url,
-        length: item.enclosure.length,
-        type: item.enclosure.type,
+        url: item.enclosure[0].url,
+        length: item.enclosure[0].length,
+        type: item.enclosure[0].type,
       },
     }));
 
