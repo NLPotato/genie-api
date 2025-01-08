@@ -30,7 +30,7 @@ export default async function handler(req, res) {
     const response = await fetch(url);
     const data = await response.text(); // Use `.text()` for XML or raw text
 	const episodes = parsePodcastData(data);
-    res.status(200).json(data); // Send raw response back to the client
+    res.status(200).json(episodes); // Send raw response back to the client
   } catch (error) {
     console.error("Error fetching podcast feed:", error);
     res.status(500).json({ error: "Failed to fetch the podcast feed." });
