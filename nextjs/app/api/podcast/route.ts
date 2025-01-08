@@ -73,7 +73,7 @@ async function parsePodcastData(xmlData: string){
       audioUrl: item.enclosure[0].$.url, 
       playTime: item["itunes:duration"] ? item["itunes:duration"]: "",
     }));
-    return {"channelInfo": channelInfo, "episodes": episodes};
+    return NextResponse.json({ "channelInfo": channelInfo, "episodes": episodes });
   } catch (error) {
     console.error('Error parsing XML:', error);
     return [];
