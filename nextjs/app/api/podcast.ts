@@ -39,7 +39,7 @@ async function parsePodcastData(xmlData: Promise<string>){
     const parser = new xml2js.Parser();
     const result = await parser.parseStringPromise(xmlData);
 
-    const episodes: Episode[] = result.rss.channel[0].item.map((item: any) => ({
+    const episodes: Episode[] = result.rss.channel[0].item.map((item: Episode) => ({
       title: item.title[0],
       description: item.description[0],
       link: item.link[0],
