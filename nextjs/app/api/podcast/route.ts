@@ -63,7 +63,7 @@ async function parsePodcastData(xmlData: string): Promise<{ channelInfo: Channel
       link: result.rss.channel[0].link[0],
       image: result.rss.channel[0].image[0].url[0],
       language: result.rss.channel[0].language[0],
-      category: result.rss.channel[0].category[0],
+      category: result.rss.channel[0]["itunes:category"][0].$.text,
     };
 
     const episodes: Episode[] = result.rss.channel[0].item.map((item: RSSItem) => ({
@@ -101,7 +101,7 @@ export async function GET(req: Request) {
     const { channelInfo, episodes } = await parsePodcastData(rss_data_text);
     console.log(channelInfo);
     console.log(episodes);
-    return NextResponse.json({ channelInfo, episodes }); // Send raw response back to the client
+    return NextResponse.json({ channelInfo, episodes }); // Send raw respons`e back to the client
   } catch (error) {
     console.error("Error fetching podcast feed:", error);
     return NextResponse.json({ error: "Failed to fetch the podcast feed." }, { status: 500 });
