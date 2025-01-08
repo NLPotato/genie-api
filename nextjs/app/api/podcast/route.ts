@@ -16,24 +16,25 @@ interface RSSItem {
       type: string; 
     };
   }[]; 
-  itunes: {
-    summary: string;
-    explicit: string;
-    duration: string;
-    image: {
+  "itunes:summary"?: string;
+  "itunes:explicit"?: string;
+  "itunes:duration"?: string;
+  "itunes:image"?: {
+    $: {
       href: string;
     };
-    season: number;
-    episode: number;
-    episodeType: string;
   };
+  "itunes:season"?: number;
+  "itunes:episode"?: number;
 }
   
 interface Episode {
   title: string;
+  description: string;
   link: string;
   pubDate: string;
   audioUrl: string;
+  itunesImage?: string;
 }
 
 function extractRSSFeedUrl(input: string): string | null {
@@ -52,6 +53,7 @@ async function parsePodcastData(xmlData: string){
       link: item.link[0],
       pubDate: item.pubDate[0],
       audioUrl: item.enclosure[0].$.url, 
+      itunesImage: item["itunes:image"]?.[0]?.$?.href,
     }));
     return episodes;
   } catch (error) {
