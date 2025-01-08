@@ -52,7 +52,7 @@ function extractRSSFeedUrl(input: string): string | null {
   return match ? match[1] : null;
 }
 
-async function parsePodcastData(xmlData: string){
+async function parsePodcastData(xmlData: string): Promise<{ channelInfo: ChannelInfo; episodes: Episode[] }> {
   try {
     const parser = new xml2js.Parser();
     const result = await parser.parseStringPromise(xmlData);
@@ -73,10 +73,10 @@ async function parsePodcastData(xmlData: string){
       audioUrl: item.enclosure[0].$.url, 
       playTime: item["itunes:duration"] ? item["itunes:duration"]: "",
     }));
-    return NextResponse.json({ "channelInfo": channelInfo, "episodes": episodes });
+    return { channelInfo, episodes };
   } catch (error) {
     console.error('Error parsing XML:', error);
-    return [];
+    return { channelInfo: {} as ChannelInfo, episodes: [] };
   }
 }
 
@@ -97,8 +97,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "RSS feed URL not found" }, { status: 400 });
     }
     const rss_data_text = await (await fetch(rss_url)).text();
-    const episodes = await parsePodcastData(rss_data_text);
-    return NextResponse.json(episodes); // Send raw response back to the client
+    const { channelInfo, episodes } = await parsePodcastData(rss_data_text);
+    return NextResponse.json({ channelInfo, episodes }); // Send raw response back to the client
   } catch (error) {
     console.error("Error fetching podcast feed:", error);
     return NextResponse.json({ error: "Failed to fetch the podcast feed." }, { status: 500 });
