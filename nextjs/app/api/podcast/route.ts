@@ -46,9 +46,11 @@ interface Episode {
   playTime: string;
 }
 
-function extractRSSFeedUrl(input: string): string | null {
-  const regex = /"feedUrl":"(https?:\/\/[^"]+\/rss)"/;
+function extractRSSFeedUrl(input: string, id: string): string | null {
+  // const regex = /"feedUrl":"(https?:\/\/[^"]+\/rss)"/;
+  const regex = new RegExp(`"adamId":"${id}","[^"]*?"feedUrl":"(https?:\/\/[^"]+\/rss)"`);
   const match = input.match(regex);
+  console.log(match);
   return match ? match[1] : null;
 }
 
@@ -110,8 +112,9 @@ export async function GET(req: Request) {
   console.log(`fetching: ${urlDecoded}`);
   try {
     const response = await fetch(urlDecoded);
+    const id = urlDecoded.match(/id(\d+)/)[1];
     const data = await response.text(); // Use `.text()` for XML or raw text
-    const rss_url = extractRSSFeedUrl(data);
+    const rss_url = extractRSSFeedUrl(data, id);
     if (!rss_url) {
       return NextResponse.json(
         { error: "RSS feed URL not found" },
