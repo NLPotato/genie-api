@@ -34,7 +34,7 @@ interface ChannelInfo {
   link: string;
   image: string;
   language: string;
-  category: string;
+  // category: string;
 }
 
 interface Episode {
@@ -66,7 +66,7 @@ async function parsePodcastData(
         link: result.rss.channel[0].link[0],
         image: result.rss.channel[0].image[0].url[0],
         language: result.rss.channel[0].language[0],
-        category: result.rss.channel[0]["itunes:category"][0].$.text,
+        // category: result.rss.channel[0]["itunes:category"][0].$.text,
       };
 
       try {
@@ -86,6 +86,7 @@ async function parsePodcastData(
         return { channelInfo: channelInfo as ChannelInfo, episodes: [] };
       }
     } catch (error) {
+      console.log(result.rss.channel[0]);
       console.error("Error extracting Channel Info:", error);
       return { channelInfo: {} as ChannelInfo, episodes: [] };
     }
@@ -119,8 +120,7 @@ export async function GET(req: Request) {
     }
     const rss_data_text = await (await fetch(rss_url)).text();
     const { channelInfo, episodes } = await parsePodcastData(rss_data_text);
-    console.log(channelInfo);
-    console.log(episodes);
+
     return NextResponse.json({ channelInfo, episodes }); // Send raw respons`e back to the client
   } catch (error) {
     console.error("Error fetching podcast feed:", error);
