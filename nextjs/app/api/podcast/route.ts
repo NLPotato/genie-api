@@ -48,7 +48,7 @@ interface Episode {
 
 function extractRSSFeedUrl(input: string, id: string): string | null {
   // const regex = /"feedUrl":"(https?:\/\/[^"]+\/rss)"/;
-  const regex = new RegExp(`"adamId":"${id}","[^"]*?"feedUrl":"(https?:\/\/[^"]+\/rss)"`);
+  const regex = new RegExp(`"adamId":"${id}".*?feedUrl":"(https?:\/\/[^"]+\/rss)"`);
   const match = input.match(regex);
   console.log(match);
   return match ? match[1] : null;
