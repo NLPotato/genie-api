@@ -112,7 +112,14 @@ export async function GET(req: Request) {
   console.log(`fetching: ${urlDecoded}`);
   try {
     const response = await fetch(urlDecoded);
-    const id = urlDecoded.match(/id(\d+)/)[1];
+    const match = urlDecoded.match(/id(\d+)/);
+    if (!match) {
+      return NextResponse.json(
+        { error: "ID not found in the URL" },
+        { status: 400 }
+      );
+    }
+    const id = match[1];
     const data = await response.text(); // Use `.text()` for XML or raw text
     const rss_url = extractRSSFeedUrl(data, id);
     if (!rss_url) {
