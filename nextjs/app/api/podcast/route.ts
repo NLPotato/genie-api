@@ -1,7 +1,7 @@
-import * as xml2js from 'xml2js';
-import { NextResponse } from 'next/server';
+import * as xml2js from "xml2js";
+import { NextResponse } from "next/server";
 
- // Start of Selection
+// Start of Selection
 interface RSSItem {
   title: string;
   description: string;
@@ -10,12 +10,12 @@ interface RSSItem {
   creator: string;
   pubDate: string;
   enclosure: {
-    $: { 
-      url: string; 
-      length: string; 
-      type: string; 
+    $: {
+      url: string;
+      length: string;
+      type: string;
     };
-  }[]; 
+  }[];
   "itunes:summary"?: string;
   "itunes:explicit"?: string;
   "itunes:duration"?: string;
@@ -52,42 +52,59 @@ function extractRSSFeedUrl(input: string): string | null {
   return match ? match[1] : null;
 }
 
-async function parsePodcastData(xmlData: string): Promise<{ channelInfo: ChannelInfo; episodes: Episode[] }> {
+async function parsePodcastData(
+  xmlData: string
+): Promise<{ channelInfo: ChannelInfo; episodes: Episode[] }> {
   try {
     const parser = new xml2js.Parser();
     const result = await parser.parseStringPromise(xmlData);
 
-    const channelInfo: ChannelInfo = {
-      title: result.rss.channel[0].title[0],
-      description: result.rss.channel[0].description[0],
-      link: result.rss.channel[0].link[0],
-      image: result.rss.channel[0].image[0].url[0],
-      language: result.rss.channel[0].language[0],
-      category: result.rss.channel[0]["itunes:category"][0].$.text,
-    };
+    try {
+      const channelInfo: ChannelInfo = {
+        title: result.rss.channel[0].title[0],
+        description: result.rss.channel[0].description[0],
+        link: result.rss.channel[0].link[0],
+        image: result.rss.channel[0].image[0].url[0],
+        language: result.rss.channel[0].language[0],
+        category: result.rss.channel[0]["itunes:category"][0].$.text,
+      };
 
-    const episodes: Episode[] = result.rss.channel[0].item.map((item: RSSItem) => ({
-      title: item.title[0],
-      link: item.link[0],
-      pubDate: item.pubDate[0],
-      audioUrl: item.enclosure[0].$.url, 
-      description: item.description[0],
-      playTime: item["itunes:duration"] ? item["itunes:duration"]: "",
-    }));
-    return { "channelInfo": channelInfo, "episodes": episodes };
+      try {
+        const episodes: Episode[] = result.rss.channel[0].item.map(
+          (item: RSSItem) => ({
+            title: item.title[0],
+            link: item.link[0],
+            pubDate: item.pubDate[0],
+            audioUrl: item.enclosure[0].$.url,
+            description: item.description[0],
+            playTime: item["itunes:duration"] ? item["itunes:duration"] : "",
+          })
+        );
+        return { channelInfo: channelInfo, episodes: episodes };
+      } catch (error) {
+        console.error("Error extracting Episodes:", error);
+        return { channelInfo: channelInfo as ChannelInfo, episodes: [] };
+      }
+    } catch (error) {
+      console.error("Error extracting Channel Info:", error);
+      return { channelInfo: {} as ChannelInfo, episodes: [] };
+    }
   } catch (error) {
-    console.error('Error parsing XML:', error);
-    return { "channelInfo": {} as ChannelInfo, "episodes": [] };
+    console.error("Error parsing XML:", error);
+    return { channelInfo: {} as ChannelInfo, episodes: [] };
   }
 }
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const url = searchParams.get('url');
+  const url = searchParams.get("url");
   const urlDecoded = decodeURIComponent(url as string);
 
   if (!urlDecoded) {
-    return NextResponse.json({ error: "URL parameter is required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "URL parameter is required" },
+      { status: 400 }
+    );
   }
   console.log(`fetching: ${urlDecoded}`);
   try {
@@ -95,7 +112,10 @@ export async function GET(req: Request) {
     const data = await response.text(); // Use `.text()` for XML or raw text
     const rss_url = extractRSSFeedUrl(data);
     if (!rss_url) {
-      return NextResponse.json({ error: "RSS feed URL not found" }, { status: 400 });
+      return NextResponse.json(
+        { error: "RSS feed URL not found" },
+        { status: 400 }
+      );
     }
     const rss_data_text = await (await fetch(rss_url)).text();
     const { channelInfo, episodes } = await parsePodcastData(rss_data_text);
@@ -104,6 +124,9 @@ export async function GET(req: Request) {
     return NextResponse.json({ channelInfo, episodes }); // Send raw respons`e back to the client
   } catch (error) {
     console.error("Error fetching podcast feed:", error);
-    return NextResponse.json({ error: "Failed to fetch the podcast feed." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch the podcast feed." },
+      { status: 500 }
+    );
   }
 }
